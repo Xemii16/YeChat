@@ -1,3 +1,11 @@
 spring:
   application:
-    name: contacts
+    name: contacts-service
+  profiles:
+    active: development
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
