@@ -1,0 +1,21 @@
+services:
+  postgresql:
+    container_name: ms_pg_sql
+    image: postgres
+    environment:
+      POSTGRES_USER: balamut
+      POSTGRES_PASSWORD: maks
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - microservices-net
+    restart: unless-stopped
+networks:
+  microservices-net:
+    driver: bridge
+
+volumes:
+  postgres:

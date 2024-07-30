@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +38,7 @@ class ContactControllerTest {
     private UserClient userClient;
     @Autowired
     private ObjectMapper objectMapper;
+
 
     private final List<Contact> contacts = new ArrayList<>();
 

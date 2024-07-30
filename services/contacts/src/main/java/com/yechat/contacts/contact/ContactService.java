@@ -49,8 +49,9 @@ public class ContactService {
      */
     private Integer getUserId(@NonNull Jwt jwt) {
         Integer userId = Integer.parseInt(jwt.getSubject());
-        userClient.getUser(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        /*userClient.getUser(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));*/
+        // Optimize request to authorization server
         return userId;
     }
 
