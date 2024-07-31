@@ -1,6 +1,6 @@
 services:
   postgresql:
-    container_name: ms_pg_sql
+    container_name: postgres
     image: postgres
     environment:
       POSTGRES_USER: balamut
@@ -12,6 +12,17 @@ services:
       - "5432:5432"
     networks:
       - microservices-net
+    restart: unless-stopped
+  cassandra:
+    container_name: cassandra
+    image: cassandra
+    ports:
+      - "9042:9042"
+    networks:
+      - microservices-net
+    environment:
+      - CASSANDRA_USER=root
+      - CASSANDRA_PASSWORD=password
     restart: unless-stopped
 networks:
   microservices-net:

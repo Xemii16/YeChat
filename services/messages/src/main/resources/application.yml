@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: message-service
+  cassandra:
+    contact-points: localhost:9042
+    keyspace-name: messages
+    password: password
+    username: user
+    local-datacenter: datacenter1
+    schema-action: create_if_not_exists
