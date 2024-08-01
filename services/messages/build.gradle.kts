@@ -26,9 +26,9 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
-	/*implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")*/
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	/*implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")*/
+	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	compileOnly("org.projectlombok:lombok")
 	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")

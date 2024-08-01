@@ -7,4 +7,4 @@ spring:
     password: password
     username: user
     local-datacenter: datacenter1
-    schema-action: create_if_not_exists
+    schema-action: recreate_drop_unused

@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 plugins {
     java
     id("org.springframework.boot") version "3.3.2"
@@ -48,3 +50,8 @@ dependencyManagement {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+/*tasks.named<BootBuildImage>("bootBuildImage") {
+    imageName.set("xemii16/${project.name}:${project.version}")
+    *//*publish.set(true)*//*
+}*/
