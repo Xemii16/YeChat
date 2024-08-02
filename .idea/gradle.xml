@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/services/chat" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/services/chat" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/services/contacts" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/services/contacts" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/services/discovery" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/services/discovery" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/services/messages" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/services/messages" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/services/users" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/services/users" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

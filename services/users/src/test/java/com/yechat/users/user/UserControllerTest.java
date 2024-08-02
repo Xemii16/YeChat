@@ -1,20 +1,19 @@
 package com.yechat.users.user;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,11 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 @Import({UserService.class, UserMapper.class})
 @AutoConfigureMockMvc
+@AutoConfigureDataJpa
+@Testcontainers
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @Autowired
     private UserRepository userRepository;
 
     private final User user = User.builder()
@@ -36,22 +37,17 @@ class UserControllerTest {
             .username("test")
             .build();
 
+    @Container
+    @ServiceConnection
+    final static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("users")
+            .withUsername("user")
+            .withPassword("password");
+
 
     @AfterEach
     void tearDown() {
         userRepository.deleteAll();
-    }
-
-    @BeforeEach
-    void setUp() {
-        when(userRepository.save(any(User.class)))
-                .thenAnswer(invocation -> {
-                    User user = invocation.getArgument(0);
-                    user.setId(1);
-                    return user;
-                });
-        when(userRepository.findById(1))
-                .thenReturn(Optional.of(user));
     }
 
     @Test

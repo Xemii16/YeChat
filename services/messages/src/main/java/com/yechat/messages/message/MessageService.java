@@ -6,9 +6,14 @@ import com.yechat.messages.message.exception.MessageEmptyException;
 import com.yechat.messages.message.request.MessageRequest;
 import com.yechat.messages.message.response.MessageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.cassandra.core.query.CassandraPageRequest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,16 +44,16 @@ public class MessageService {
         return messageMapper.toResponse(message);
     }
 
-    public List<MessageResponse> getMessage(String chatId, Jwt jwt, int page, int size) {
-        if (chatClient.getChat(UUID.fromString(chatId)).isEmpty()) {
-            throw new ChatNotFoundException(UUID.fromString(chatId));
+    // TODO pagination and check if chat belongs to user
+    public List<MessageResponse> getMessage(UUID chatId, Jwt jwt) {
+        if (chatClient.getChat(chatId).isEmpty()) {
+            throw new ChatNotFoundException(chatId);
         }
-        if (page < 0) {
-            return messageRepository.findAllByChatIdOrderByTimestampDesc(UUID.fromString(chatId)).stream()
-                    .map(messageMapper::toResponse)
-                    .toList();
+        if (chatClient.getChat(chatId).isEmpty()) {
+            return List.of();
         }
-        // TODO: Implement pagination and delete condition below for optimization
-        return List.of();
-    };
+        return messageRepository.findAllByChatId(chatId).stream()
+                .map(messageMapper::toResponse)
+                .toList();
+    }
 }

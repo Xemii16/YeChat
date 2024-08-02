@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/messages")
@@ -24,11 +25,9 @@ public class MessageController {
 
     @GetMapping("/{chatId}")
     public ResponseEntity<List<MessageResponse>> getMessage(
-            @PathVariable String chatId,
-            @RequestParam(name = "page", defaultValue = "-1") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
+            @PathVariable UUID chatId,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        return ResponseEntity.ok(messageService.getMessage(chatId, jwt, page, size));
+        return ResponseEntity.ok(messageService.getMessage(chatId, jwt));
     }
 }

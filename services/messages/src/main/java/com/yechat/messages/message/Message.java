@@ -2,6 +2,7 @@ package com.yechat.messages.message;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.cassandra.core.mapping.Indexed;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.util.UUID;
@@ -16,6 +17,7 @@ public class Message {
 
     @Id
     private UUID id;
+    @Indexed
     private UUID chatId;
     private Integer senderId;
     private String content;

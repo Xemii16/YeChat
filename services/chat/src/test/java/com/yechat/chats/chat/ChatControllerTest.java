@@ -4,23 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yechat.chats.chat.request.ChatRequest;
 import com.yechat.chats.user.UserClient;
 import com.yechat.chats.user.response.UserResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,6 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ChatController.class)
 @Import({ChatService.class, ChatMapper.class})
 @AutoConfigureMockMvc
+@AutoConfigureDataJpa
+@Testcontainers
 class ChatControllerTest {
 
     @Autowired
@@ -38,45 +42,27 @@ class ChatControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private UserClient userClient;
-    @MockBean
+    @Autowired
     private ChatRepository chatRepository;
+
+    @Container
+    @ServiceConnection
+    final static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("chats")
+            .withUsername("user")
+            .withPassword("password");
 
     @BeforeEach
     void setUp() {
-        List<Chat> chats = new ArrayList<>();
-        when(chatRepository.save(any(Chat.class)))
-                .thenAnswer(invocation -> {
-                    Chat chat = invocation.getArgument(0);
-                    chat.setId(chats.size() + 1);
-                    chats.add(chat);
-                    return chat;
-                });
         when(userClient.getUser(2))
                 .thenReturn(Optional.of(new UserResponse(2, "test", "test", "test")));
         when(userClient.getUser(3))
                 .thenReturn(Optional.empty());
-        when(chatRepository.existsBySenderIdAndReceiverId(any(Integer.class), any(Integer.class)))
-                .thenAnswer(invocation -> {
-                    Integer senderId = invocation.getArgument(0, Integer.class);
-                    Integer receiverId = invocation.getArgument(1, Integer.class);
-                    return chats.stream()
-                            .anyMatch(chat -> chat.getSenderId().equals(senderId) && chat.getReceiverId().equals(receiverId));
-                });
-        when(chatRepository.existsBySenderIdAndReceiverId(1, 3))
-                .thenReturn(false);
-        when(chatRepository.findAllBySenderId(any(Integer.class)))
-                .thenAnswer(invocation -> {
-                    Integer senderId = invocation.getArgument(0, Integer.class);
-                    return chats.stream()
-                            .filter(chat -> chat.getSenderId().equals(senderId))
-                            .toList();
-                });
-        doAnswer(invocation -> {
-            Integer senderId = invocation.getArgument(0, Integer.class);
-            Integer receiverId = invocation.getArgument(1, Integer.class);
-            chats.removeIf(chat -> chat.getSenderId().equals(senderId) && chat.getReceiverId().equals(receiverId));
-            return null;
-        }).when(chatRepository).deleteBySenderIdAndReceiverId(any(Integer.class), any(Integer.class));
+    }
+
+    @AfterEach
+    void tearDown() {
+        chatRepository.deleteAll();
     }
 
     @Test

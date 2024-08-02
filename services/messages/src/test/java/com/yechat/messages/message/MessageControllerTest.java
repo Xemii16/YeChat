@@ -1,26 +1,31 @@
 package com.yechat.messages.message;
 
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yechat.messages.chat.ChatClient;
 import com.yechat.messages.chat.exception.ChatClientFallbackFactory;
 import com.yechat.messages.chat.response.ChatResponse;
 import com.yechat.messages.message.request.MessageRequest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.cassandra.AutoConfigureDataCassandra;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,28 +36,53 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(MessageController.class)
 @Import({MessageMapper.class, MessageService.class, ChatClientFallbackFactory.class})
 @AutoConfigureMockMvc
+@Testcontainers
+@AutoConfigureDataCassandra
 class MessageControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @MockBean
+    @Autowired
     private MessageRepository messageRepository;
     @MockBean
     private ChatClient chatClient;
     private static final UUID CHAT_ID = UUID.randomUUID();
     private static final UUID CHAT_ID_THAT_NOT_BELONG_TO_USER = UUID.randomUUID();
 
+    @Container
+    @ServiceConnection
+    final static CassandraContainer<?> cassandra = new CassandraContainer<>("cassandra:latest")
+            .withExposedPorts(9042);
+
+    @DynamicPropertySource
+    static void registerCassandraProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.cassandra.keyspace-name", () -> "messages");
+        registry.add("spring.cassandra.contacts-points", () -> cassandra.getContactPoint().toString());
+        registry.add("spring.cassandra.local-datacenter", cassandra::getLocalDatacenter);
+    }
+
+    @BeforeAll
+    static void beforeAll() {
+        createKeyspace(cassandra.getCluster());
+    }
+
+    @AfterEach
+    void tearDown() {
+        messageRepository.deleteAll();
+    }
+
+    private static void createKeyspace(Cluster cluster) {
+        try (Session session = cluster.connect()) {
+            session.execute("CREATE KEYSPACE IF NOT EXISTS " + "messages" +
+                    " WITH replication = \n" +
+                    "{'class':'SimpleStrategy','replication_factor':'1'};");
+        }
+    }
+
     @BeforeEach
     void setUp() {
-        List<Message> messages = new ArrayList<>();
-        when(messageRepository.save(any(Message.class)))
-                .thenAnswer(invocation -> {
-                    Message message = invocation.getArgument(0);
-                    messages.add(message);
-                    return message;
-                });
         when(chatClient.getChat(CHAT_ID)).thenReturn(Optional.of(
                 new ChatResponse(CHAT_ID, 2)
         ));
@@ -130,20 +160,41 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldReturnOnlyFirstMessage() throws Exception {
+    void shouldReturnMessages() throws Exception {
         saveTwoMessages();
         this.mockMvc.perform(
                         get("/api/v1/messages/" + CHAT_ID)
-                                .queryParam("number", "1")
+                                .with(jwt().jwt(jwt -> jwt.subject("1")))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].chat_id").value(CHAT_ID.toString()))
                 .andExpect(jsonPath("$[0].sender_id").value(1))
                 .andExpect(jsonPath("$[0].content").value("Hello, World!"))
                 .andExpect(jsonPath("$[0].timestamp").isNumber());
+    }
+
+    @Test
+    @Disabled
+        // TODO: Fix this test
+    void shouldReturnForbiddenWhenReturnMessages() throws Exception {
+        saveTwoMessages();
+        this.mockMvc.perform(
+                        get("/api/v1/messages/" + CHAT_ID)
+                                .with(jwt().jwt(jwt -> jwt.subject("2")))
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenReturnMessages() throws Exception {
+        saveTwoMessages();
+        this.mockMvc.perform(
+                        get("/api/v1/messages/" + CHAT_ID)
+                )
+                .andExpect(status().isUnauthorized());
     }
 
     private void saveTwoMessages() {

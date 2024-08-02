@@ -8,6 +8,7 @@ import com.yechat.chats.user.UserClient;
 import com.yechat.chats.user.exception.UserNotFoundException;
 import com.yechat.chats.user.response.UserResponse;
 import io.micrometer.common.lang.NonNullApi;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -45,6 +46,7 @@ public class ChatService {
                 .toList();
     }
 
+    @Transactional
     public void deleteChat(Integer receiverId, Jwt jwt, boolean deleteAll) {
         Integer userId = getUserId(jwt);
         if (!chatRepository.existsBySenderIdAndReceiverId(userId, receiverId)) {
