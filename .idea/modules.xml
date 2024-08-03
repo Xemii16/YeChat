@@ -6,7 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat.main.iml" filepath="$PROJECT_DIR$/.idea/modules/chat.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/contacts.main.iml" filepath="$PROJECT_DIR$/.idea/modules/contacts.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/messages.main.iml" filepath="$PROJECT_DIR$/.idea/modules/messages.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/user-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/user-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/users.main.iml" filepath="$PROJECT_DIR$/.idea/modules/users.main.iml" />
     </modules>
   </component>
 </project>

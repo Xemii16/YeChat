@@ -4,7 +4,7 @@ import com.yechat.contacts.contact.exception.ContactNotFoundException;
 import com.yechat.contacts.contact.request.ContactRequest;
 import com.yechat.contacts.contact.response.ContactResponse;
 import com.yechat.contacts.user.UserClient;
-import com.yechat.contacts.user.UserNotFoundException;
+import com.yechat.contacts.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;

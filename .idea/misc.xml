@@ -6,6 +6,7 @@
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/services/authorization" />
     <file type="web" url="file://$PROJECT_DIR$/services/chat" />
     <file type="web" url="file://$PROJECT_DIR$/services/contacts" />
     <file type="web" url="file://$PROJECT_DIR$/services/discovery" />

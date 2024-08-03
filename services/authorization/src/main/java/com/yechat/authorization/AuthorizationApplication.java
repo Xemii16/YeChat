@@ -1,4 +1,4 @@
-package com.yechat.contacts;
+package com.yechat.authorization;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class ContactsApplication {
+public class AuthorizationApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ContactsApplication.class, args);
+        SpringApplication.run(AuthorizationApplication.class, args);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.yechat.contacts.user;
+package com.yechat.contacts.user.exception;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {
