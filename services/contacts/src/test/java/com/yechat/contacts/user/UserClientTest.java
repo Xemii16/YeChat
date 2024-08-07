@@ -1,71 +1,65 @@
 package com.yechat.contacts.user;
 
 import com.netflix.discovery.EurekaClient;
-import com.yechat.contacts.UserContainerConfiguration;
-import com.yechat.contacts.configuration.RestClientConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.client.CommonsClientAutoConfiguration;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.commons.config.CommonsConfigAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient;
-import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.GenericContainer;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.io.File;
+import java.time.Duration;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-@SpringBootTest(classes = {
-        RestUserClient.class,
-        EurekaClientAutoConfiguration.class,
-        EurekaAutoServiceRegistration.class,
-        CommonsClientAutoConfiguration.class,
-        CommonsConfigAutoConfiguration.class,
+@SpringBootTest()
+@EnableAutoConfiguration(exclude = {
+        R2dbcAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
+        FlywayAutoConfiguration.class
 })
-@Import({
-        RestClientConfiguration.class,
-        UserContainerConfiguration.class,
-        EurekaDiscoveryClient.class
-})
-@ExtendWith(SpringExtension.class)
+@AutoConfigureWebClient
+@ActiveProfiles("development")
 @Testcontainers
 class UserClientTest {
 
     @Container
-    public static final GenericContainer eurekaServer =
-            new GenericContainer("xemii16/yechat-discovery:0.0.1-SNAPSHOT")
-                    .withExposedPorts(8761);
+    public static DockerComposeContainer<?> environment =
+            new DockerComposeContainer<>(new File("src/test/resources/compose-test.yml"));
 
     @DynamicPropertySource
-    static void registerCassandraProperties(DynamicPropertyRegistry registry) {
+    static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("eureka.client.serviceUrl.defaultZone",
                 () -> "http://localhost:"
-                        + eurekaServer.getFirstMappedPort().toString()
-                        + "/eureka");
+                        + 8761
+                        + "/eureka/");
     }
 
     @Autowired
-    private DiscoveryClient discoveryClient;
-
-    @BeforeEach
-    void setUp() {
-        await().atMost(60, SECONDS).until(() -> !discoveryClient.getServices().isEmpty());
-    }
+    private WebClient.Builder webClientBuilder;
 
     @Autowired
     @Lazy
     private EurekaClient eurekaClient;
+
+    @BeforeEach
+    void setUp() {
+        await().atMost(Duration.ofSeconds(30)).until(() -> eurekaClient.getApplications().size() > 0);
+    }
 
     @Autowired
     private UserClient userClient;
@@ -73,6 +67,27 @@ class UserClientTest {
 
     @Test
     void getUser() {
-        this.userClient.getUser(123);
+        UserResponse registeredUserResponse = this.webClientBuilder.build()
+                .post()
+                .uri("http://localhost:8080/api/v1/users")
+                .bodyValue(new UserRequest("test@test.com", "test", "test", "test"))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(UserResponse.class)
+                .block();
+        assert registeredUserResponse != null;
+        UserResponse response = this.userClient
+                .getUser(registeredUserResponse.id())
+                .block();
+        assertThat(registeredUserResponse).isEqualTo(response);
+    }
+
+
+    private record UserRequest(
+            String email,
+            String firstname,
+            String lastname,
+            String username
+    ) {
     }
 }

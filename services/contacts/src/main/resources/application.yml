@@ -1,26 +1,23 @@
 spring:
   application:
     name: contacts-service
-  profiles:
-    active: development
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/contacts
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/contacts
     username: balamut
     password: maks
-  jpa:
-    hibernate:
-      ddl-auto: create
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-  cloud:
-    discovery:
-      enabled: true
+  flyway:
+    user: balamut
+    password: maks
+    url: jdbc:postgresql://localhost:5432/contacts
+    baseline-on-migrate: true
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9000/
+  cloud:
+    loadbalancer:
+      enabled: true
 
 eureka:
   instance:

@@ -4,64 +4,79 @@ import com.yechat.contacts.contact.exception.ContactNotFoundException;
 import com.yechat.contacts.contact.request.ContactRequest;
 import com.yechat.contacts.contact.response.ContactResponse;
 import com.yechat.contacts.user.UserClient;
-import com.yechat.contacts.user.exception.UserNotFoundException;
+import com.yechat.contacts.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
+@Profile("!testing")
 public class ContactService {
 
     private final ContactRepository contactRepository;
     private final ContactMapper contactMapper;
     private final UserClient userClient;
 
-    public ContactResponse createContact(@NonNull ContactRequest request, @NonNull Jwt jwt) {
+    public Mono<ContactResponse> createContact(@NonNull ContactRequest request, @NonNull Jwt jwt) {
         Integer userId = getUserId(jwt);
-        userClient.getUser(request.contactId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.contactId()));
-        Contact contact = Contact.builder()
-                .userId(userId)
-                .contactId(request.contactId())
-                .build();
-        Contact savedContact = contactRepository.save(contact);
-        return contactMapper.toResponse(savedContact);
+        return userClient.getUser(request.contactId())
+                .onErrorMap(this::transformException)
+                .flatMap(userResponse -> {
+                    Contact contact = Contact.builder()
+                            .userId(userId)
+                            .contactId(request.contactId())
+                            .build();
+                    return contactRepository.save(contact)
+                            .map(contactMapper::toResponse);
+                });
     }
 
-    public List<ContactResponse> getContacts(Jwt jwt) {
+    public Flux<ContactResponse> getContacts(Jwt jwt) {
         Integer userId = getUserId(jwt);
         return contactRepository
                 .findAllByUserId(userId)
-                .stream()
-                .map(contactMapper::toResponse)
-                .toList();
+                .map(contactMapper::toResponse);
     }
 
-    /**
-     * Validates the user by checking if the user exists.
-     * If the user does not exist, it throws a UserNotFoundException. (401 http status)
-     * @param jwt the jwt token
-     * @return the user id represented as an integer
-     */
     private Integer getUserId(@NonNull Jwt jwt) {
-        Integer userId = Integer.parseInt(jwt.getSubject());
-        /*userClient.getUser(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));*/
-        // Optimize request to authorization server
-        return userId;
+        return Integer.parseInt(jwt.getSubject());
     }
 
-    public void deleteContact(Integer id, Jwt user) {
+    public Mono<Void> deleteContact(Integer id, Jwt user) {
         Integer userId = getUserId(user);
-        Contact contact = contactRepository.findById(id)
-                .orElseThrow(() -> new ContactNotFoundException("Contact not found with ID: " + id));
-        if (!contact.getUserId().equals(userId)) {
-            throw new ContactNotFoundException("Contact not found with ID: " + id);
+        return contactRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ContactNotFoundException("Contact not found with ID: " + id)))
+                .flatMap(contact -> {
+                    if (contact != null && !contact.getUserId().equals(userId)) {
+                        return Mono.error(new ContactNotFoundException("Contact not found with ID: " + id));
+                    }
+                    Assert.notNull(contact, "Contact is null with ID: " + id);
+                    return contactRepository.delete(contact);
+                });
+    }
+
+    @NonNull
+    private <R> ResponseEntity<R> toEntity(@NonNull R response, @NonNull HttpStatus status) {
+        return ResponseEntity
+                .status(status)
+                .body(response);
+    }
+
+    @NonNull
+    private Throwable transformException(@NonNull Throwable rawException) {
+        if (rawException instanceof UserException exception) {
+            return new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
         }
-        contactRepository.delete(contact);
+        return rawException;
     }
 }

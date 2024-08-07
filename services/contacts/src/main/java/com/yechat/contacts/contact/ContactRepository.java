@@ -1,12 +1,13 @@
 package com.yechat.contacts.contact;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Repository
-public interface ContactRepository extends JpaRepository<Contact, Integer> {
+@Profile("!testing")
+public interface ContactRepository extends ReactiveCrudRepository<Contact, Integer> {
 
-    List<Contact> findAllByUserId(Integer userId);
+    Flux<Contact> findAllByUserId(Integer userId);
 }

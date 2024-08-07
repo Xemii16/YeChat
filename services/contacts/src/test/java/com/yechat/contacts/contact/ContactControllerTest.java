@@ -2,39 +2,42 @@ package com.yechat.contacts.contact;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yechat.contacts.contact.request.ContactRequest;
+import com.yechat.contacts.exception.ValidationExceptionHandler;
 import com.yechat.contacts.user.UserClient;
 import com.yechat.contacts.user.UserResponse;
+import com.yechat.contacts.user.exception.UserNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.data.r2dbc.AutoConfigureDataR2dbc;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 
-@WebMvcTest(ContactController.class)
-@Import({ContactMapper.class, ContactService.class})
-@AutoConfigureMockMvc
-@AutoConfigureDataJpa
+@WebFluxTest(ContactController.class)
+@Import({ContactMapper.class, ContactService.class, ValidationExceptionHandler.class})
+@AutoConfigureDataR2dbc
+@AutoConfigureWebTestClient
 @Testcontainers
 class ContactControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private WebTestClient webTestClient;
     @Autowired
     private ContactRepository contactRepository;
     @MockBean
@@ -43,81 +46,118 @@ class ContactControllerTest {
     private ObjectMapper objectMapper;
 
     @Container
-    @ServiceConnection
     final static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
             .withDatabaseName("contacts")
             .withUsername("user")
             .withPassword("password");
 
+    @DynamicPropertySource
+    static void registerPostgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.r2dbc.url", () -> postgres.getJdbcUrl()
+                .replace("jdbc", "r2dbc"));
+        registry.add("spring.r2dbc.username", postgres::getUsername);
+        registry.add("spring.r2dbc.password", postgres::getPassword);
+        registry.add("spring.flyway.url", postgres::getJdbcUrl);
+        registry.add("spring.flyway.user", postgres::getUsername);
+        registry.add("spring.flyway.password", postgres::getPassword);
+    }
+
     @BeforeEach
     void setUp() {
         when(userClient.getUser(1))
-                .thenReturn(java.util.Optional.of(new UserResponse(1, "test", "test", "test")));
+                .thenReturn(Mono.just(new UserResponse(1, "test", "test", "test")));
         when(userClient.getUser(2))
-                .thenReturn(java.util.Optional.of(new UserResponse(2, "test", "test", "test")));
+                .thenReturn(Mono.just(new UserResponse(2, "test", "test", "test")));
         when(userClient.getUser(3))
-                .thenReturn(java.util.Optional.empty());
+                .thenReturn(Mono.error(new UserNotFoundException(3)));
     }
 
     @AfterEach
     void tearDown() {
-        contactRepository.deleteAll();
+        contactRepository.deleteAll().block();
     }
 
     @Test
     void shouldCreateContactSuccessfully() throws Exception {
         String content = objectMapper.writeValueAsString(new ContactRequest(2));
-        mockMvc.perform(post("/api/v1/contacts")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType("application/json")
-                        .content(content)
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.contact_id").value(2));
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .mutateWith(csrf())
+                .post().uri("/api/v1/contacts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ContactRequest(2))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").exists()
+                .jsonPath("$.contact_id").isEqualTo(2);
     }
 
     @Test
     void shouldReturnBadRequestWhenAddContactWithContactIdIsNull() throws Exception {
-        String content = objectMapper.writeValueAsString(new ContactRequest(null));
-        mockMvc.perform(post("/api/v1/contacts")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType("application/json")
-                        .content(content)
-                )
-                .andExpect(status().isBadRequest());
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .mutateWith(csrf())
+                .post().uri("/api/v1/contacts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ContactRequest(null))
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
     void shouldReturnBadRequestWhenAddContactWithContactIdIsNonExists() throws Exception {
-        String content = objectMapper.writeValueAsString(new ContactRequest(3));
+        /*String content = objectMapper.writeValueAsString(new ContactRequest(3));
         mockMvc.perform(post("/api/v1/contacts")
                         .with(jwt().jwt(jwt -> jwt.subject("1")))
                         .contentType("application/json")
                         .content(content)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());*/
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .mutateWith(csrf())
+                .post().uri("/api/v1/contacts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ContactRequest(3))
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
     void shouldReturnBadRequestWhenAddContactWithContactIdIsNegative() throws Exception {
-        String content = objectMapper.writeValueAsString(new ContactRequest(-1));
+        /*String content = objectMapper.writeValueAsString(new ContactRequest(-1));
         mockMvc.perform(post("/api/v1/contacts")
                         .with(jwt().jwt(jwt -> jwt.subject("1")))
                         .contentType("application/json")
                         .content(content)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());*/
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .mutateWith(csrf())
+                .post().uri("/api/v1/contacts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ContactRequest(-1))
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
-    void shouldReturnForbiddenWhenAddContactWithUserIsNotAuthenticated() throws Exception {
-        String content = objectMapper.writeValueAsString(new ContactRequest(2));
+    void shouldReturnUnauthorizedWhenAddContactWithUserIsNotAuthenticated() throws Exception {
+        /*String content = objectMapper.writeValueAsString(new ContactRequest(2));
         mockMvc.perform(post("/api/v1/contacts")
                         .contentType("application/json")
                         .content(content)
                 )
-                .andExpect(status().isForbidden()); // Will replace with 401
+                .andExpect(status().isForbidden()); // Will replace with 401*/
+        webTestClient
+                .mutateWith(csrf())
+                .post().uri("/api/v1/contacts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ContactRequest(2))
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -126,21 +166,38 @@ class ContactControllerTest {
                 .userId(1)
                 .contactId(2)
                 .build()
-        );
-        mockMvc.perform(get("/api/v1/contacts")
+        ).block();
+        /*mockMvc.perform(get("/api/v1/contacts")
                         .with(jwt().jwt(jwt -> jwt.subject("1")))
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(contact.getId()))
-                .andExpect(jsonPath("$[0].contact_id").value(contact.getContactId()));
+                .andExpect(jsonPath("$[0].contact_id").value(contact.getContactId()));*/
+        assert contact != null;
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .mutateWith(csrf())
+                .get().uri("/api/v1/contacts")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$").isArray()
+                .jsonPath("$.length()").isEqualTo(1)
+                .jsonPath("$[0].id").isEqualTo(contact.getId())
+                .jsonPath("$[0].contact_id").isEqualTo(contact.getContactId());
     }
 
     @Test
     void shouldReturnForbiddenWhenGetContactsWithUserIsNotAuthenticated() throws Exception {
-        mockMvc.perform(get("/api/v1/contacts"))
-                .andExpect(status().isUnauthorized());
+        /*mockMvc.perform(get("/api/v1/contacts"))
+                .andExpect(status().isUnauthorized());*/
+        webTestClient
+                .mutateWith(csrf())
+                .get().uri("/api/v1/contacts")
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -149,11 +206,19 @@ class ContactControllerTest {
                 .userId(1)
                 .contactId(2)
                 .build()
-        );
-        mockMvc.perform(delete("/api/v1/contacts/" + contact.getContactId())
+        ).block();
+        /*mockMvc.perform(delete("/api/v1/contacts/" + contact.getContactId())
                         .with(jwt().jwt(jwt -> jwt.subject(contact.getUserId().toString())))
                 )
                 .andExpect(status().isNoContent());
-        assertThat(contactRepository.findById(1)).isEmpty();
+        assertThat(contactRepository.findById(1)).isEmpty();*/
+        assert contact != null;
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject(contact.getUserId().toString())))
+                .mutateWith(csrf())
+                .delete().uri("/api/v1/contacts/" + contact.getContactId())
+                .exchange()
+                .expectStatus().isNoContent();
+        assertThat(contactRepository.findById(1).block()).isNull();
     }
 }

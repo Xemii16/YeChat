@@ -8,7 +8,7 @@ plugins {
 val springCloudVersion by extra("2023.0.3")
 
 group = "com.yechat"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.2"
 
 java {
     toolchain {
@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.glassfish.jersey.core:jersey-common:3.1.7")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")

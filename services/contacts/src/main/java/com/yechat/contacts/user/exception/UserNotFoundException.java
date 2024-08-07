@@ -1,7 +1,10 @@
 package com.yechat.contacts.user.exception;
 
-public class UserNotFoundException extends RuntimeException {
-    public UserNotFoundException(String message) {
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class UserNotFoundException extends UserException {
+
+    public UserNotFoundException(Integer id) {
+        super("User not found with id: " + id, HttpStatus.NOT_FOUND);
     }
 }
