@@ -42,8 +42,6 @@ class ContactControllerTest {
     private ContactRepository contactRepository;
     @MockBean
     private UserClient userClient;
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Container
     final static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
@@ -78,8 +76,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldCreateContactSuccessfully() throws Exception {
-        String content = objectMapper.writeValueAsString(new ContactRequest(2));
+    void shouldCreateContactSuccessfully() {
         webTestClient
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
                 .mutateWith(csrf())
@@ -94,7 +91,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenAddContactWithContactIdIsNull() throws Exception {
+    void shouldReturnBadRequestWhenAddContactWithContactIdIsNull() {
         webTestClient
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
                 .mutateWith(csrf())
@@ -106,14 +103,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenAddContactWithContactIdIsNonExists() throws Exception {
-        /*String content = objectMapper.writeValueAsString(new ContactRequest(3));
-        mockMvc.perform(post("/api/v1/contacts")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType("application/json")
-                        .content(content)
-                )
-                .andExpect(status().isBadRequest());*/
+    void shouldReturnBadRequestWhenAddContactWithContactIdIsNonExists() {
         webTestClient
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
                 .mutateWith(csrf())
@@ -125,14 +115,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenAddContactWithContactIdIsNegative() throws Exception {
-        /*String content = objectMapper.writeValueAsString(new ContactRequest(-1));
-        mockMvc.perform(post("/api/v1/contacts")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType("application/json")
-                        .content(content)
-                )
-                .andExpect(status().isBadRequest());*/
+    void shouldReturnBadRequestWhenAddContactWithContactIdIsNegative() {
         webTestClient
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
                 .mutateWith(csrf())
@@ -144,13 +127,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldReturnUnauthorizedWhenAddContactWithUserIsNotAuthenticated() throws Exception {
-        /*String content = objectMapper.writeValueAsString(new ContactRequest(2));
-        mockMvc.perform(post("/api/v1/contacts")
-                        .contentType("application/json")
-                        .content(content)
-                )
-                .andExpect(status().isForbidden()); // Will replace with 401*/
+    void shouldReturnUnauthorizedWhenAddContactWithUserIsNotAuthenticated() {
         webTestClient
                 .mutateWith(csrf())
                 .post().uri("/api/v1/contacts")
@@ -161,20 +138,12 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldReturnAllContactsWithAuthentication() throws Exception {
+    void shouldReturnAllContactsWithAuthentication() {
         Contact contact = this.contactRepository.save(Contact.builder()
                 .userId(1)
                 .contactId(2)
                 .build()
         ).block();
-        /*mockMvc.perform(get("/api/v1/contacts")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(contact.getId()))
-                .andExpect(jsonPath("$[0].contact_id").value(contact.getContactId()));*/
         assert contact != null;
         webTestClient
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -190,9 +159,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldReturnForbiddenWhenGetContactsWithUserIsNotAuthenticated() throws Exception {
-        /*mockMvc.perform(get("/api/v1/contacts"))
-                .andExpect(status().isUnauthorized());*/
+    void shouldReturnForbiddenWhenGetContactsWithUserIsNotAuthenticated() {
         webTestClient
                 .mutateWith(csrf())
                 .get().uri("/api/v1/contacts")
@@ -201,17 +168,12 @@ class ContactControllerTest {
     }
 
     @Test
-    void shouldDeleteContactThatExists() throws Exception {
+    void shouldDeleteContactThatExists() {
         Contact contact = this.contactRepository.save(Contact.builder()
                 .userId(1)
                 .contactId(2)
                 .build()
         ).block();
-        /*mockMvc.perform(delete("/api/v1/contacts/" + contact.getContactId())
-                        .with(jwt().jwt(jwt -> jwt.subject(contact.getUserId().toString())))
-                )
-                .andExpect(status().isNoContent());
-        assertThat(contactRepository.findById(1)).isEmpty();*/
         assert contact != null;
         webTestClient
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject(contact.getUserId().toString())))
@@ -220,5 +182,37 @@ class ContactControllerTest {
                 .exchange()
                 .expectStatus().isNoContent();
         assertThat(contactRepository.findById(1).block()).isNull();
+    }
+
+    @Test
+    void shouldDeleteContactThatNotExist() {
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .mutateWith(csrf())
+                .delete().uri("/api/v1/contacts/" + 2)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void shouldDeleteContactThatNotBelongToUser() {
+        Contact contact = this.contactRepository.save(Contact.builder()
+                .userId(1)
+                .contactId(3)
+                .build()
+        ).block();
+        Contact contact2 = this.contactRepository.save(Contact.builder()
+                .userId(3)
+                .contactId(2)
+                .build()
+        ).block();
+        assert contact != null;
+        assert contact2 != null;
+        webTestClient
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject(contact.getUserId().toString())))
+                .mutateWith(csrf())
+                .delete().uri("/api/v1/contacts/" + 2)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }

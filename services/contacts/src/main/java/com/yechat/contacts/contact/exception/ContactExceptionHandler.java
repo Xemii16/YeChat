@@ -9,8 +9,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class ContactExceptionHandler {
 
-    @ExceptionHandler(ContactNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleContactNotFoundException(ContactNotFoundException e) {
+    @ExceptionHandler(ContactNotExistException.class)
+    public ResponseEntity<Map<String, Object>> handleContactNotFoundException(ContactNotExistException e) {
         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     }
 }

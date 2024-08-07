@@ -1,6 +1,8 @@
 package com.yechat.contacts.contact;
 
-import com.yechat.contacts.contact.exception.ContactNotFoundException;
+import com.yechat.contacts.contact.exception.ContactException;
+import com.yechat.contacts.contact.exception.ContactIsNotUserContactException;
+import com.yechat.contacts.contact.exception.ContactNotExistException;
 import com.yechat.contacts.contact.request.ContactRequest;
 import com.yechat.contacts.contact.response.ContactResponse;
 import com.yechat.contacts.user.UserClient;
@@ -8,7 +10,6 @@ import com.yechat.contacts.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -52,17 +53,18 @@ public class ContactService {
         return Integer.parseInt(jwt.getSubject());
     }
 
-    public Mono<Void> deleteContact(Integer id, Jwt user) {
+    public Mono<Void> deleteContact(Integer contactId, Jwt user) {
         Integer userId = getUserId(user);
-        return contactRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ContactNotFoundException("Contact not found with ID: " + id)))
+        return contactRepository.findByContactId(contactId)
+                .switchIfEmpty(Mono.error(new ContactNotExistException(contactId)))
                 .flatMap(contact -> {
                     if (contact != null && !contact.getUserId().equals(userId)) {
-                        return Mono.error(new ContactNotFoundException("Contact not found with ID: " + id));
+                        return Mono.error(new ContactIsNotUserContactException(contactId));
                     }
-                    Assert.notNull(contact, "Contact is null with ID: " + id);
+                    Assert.notNull(contact, "Contact is null with ID: " + contactId);
                     return contactRepository.delete(contact);
-                });
+                })
+                .onErrorMap(this::transformException);
     }
 
     @NonNull
@@ -75,6 +77,9 @@ public class ContactService {
     @NonNull
     private Throwable transformException(@NonNull Throwable rawException) {
         if (rawException instanceof UserException exception) {
+            return new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
+        }
+        if (rawException instanceof ContactException exception) {
             return new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
         }
         return rawException;
