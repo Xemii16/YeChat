@@ -77,16 +77,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldCreateChatSuccessfully() throws Exception {
-        /*String content = objectMapper.writeValueAsString(new ChatRequest(2));
-        this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.chat_id").isString())
-                .andExpect(jsonPath("$.receiver_id").value(2));*/
+    void shouldCreateChatSuccessfully() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -101,14 +92,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenReceiverNotFound() throws Exception {
-        /*String content = objectMapper.writeValueAsString(new ChatRequest(3));
-        this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content)
-                )
-                .andExpect(status().isBadRequest());*/
+    void shouldReturnBadRequestWhenReceiverNotFound() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -120,13 +104,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnUnauthorizedWhenUserNotAuthenticated() throws Exception {
-        /*String content = objectMapper.writeValueAsString(new ChatRequest(2));
-        this.mockMvc.perform(post("/api/v1/chats")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content)
-                )
-                .andExpect(status().isForbidden());*/
+    void shouldReturnUnauthorizedWhenUserNotAuthenticated() {
         this.webTestClient
                 .mutateWith(csrf())
                 .post().uri("/api/v1/chats")
@@ -138,19 +116,6 @@ class ChatControllerTest {
 
     @Test
     void shouldReturnBadRequestWhenChatExists() {
-        /*String content = objectMapper.writeValueAsString(new ChatRequest(2));
-        this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content)
-                )
-                .andExpect(status().isOk());
-        this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content)
-                )
-                .andExpect(status().isBadRequest());*/
         ChatRequest body = new ChatRequest(2);
         this.webTestClient
                 .mutateWith(csrf())
@@ -170,21 +135,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnAllChats() throws Exception {
-        /*this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ChatRequest(2)))
-                )
-                .andExpect(status().isOk());
-        this.mockMvc.perform(get("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].chat_id").isString())
-                .andExpect(jsonPath("$[0].receiver_id").value(2));*/
+    void shouldReturnAllChats() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -207,11 +158,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnAuthorizedWhenUserNotAuthenticated() throws Exception {
-        /*this.mockMvc.perform(get("/api/v1/chats")
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isUnauthorized());*/
+    void shouldReturnAuthorizedWhenUserNotAuthenticated() {
         this.webTestClient
                 .mutateWith(csrf())
                 .get().uri("/api/v1/chats")
@@ -221,14 +168,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoChats() throws Exception {
-        /*this.mockMvc.perform(get("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());*/
+    void shouldReturnEmptyListWhenNoChats() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -242,18 +182,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldDeleteChatForSender() throws Exception {
-        /*this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ChatRequest(2)))
-                )
-                .andExpect(status().isOk());
-        this.mockMvc.perform(delete("/api/v1/chats/2")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                )
-                .andExpect(status().isNoContent());
-        assertThat(chatRepository.findAllBySenderId(1).isEmpty()).isTrue();*/
+    void shouldDeleteChatForSender() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -271,11 +200,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenChatNotExists() throws Exception {
-        /*this.mockMvc.perform(delete("/api/v1/chats/2")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                )
-                .andExpect(status().isBadRequest());*/
+    void shouldReturnBadRequestWhenChatNotExists() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -286,9 +211,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldReturnUnauthorizedWhenDeleteUserAndNotAuthenticated() throws Exception {
-        /*this.mockMvc.perform(delete("/api/v1/chats/2"))
-                .andExpect(status().isForbidden());*/
+    void shouldReturnUnauthorizedWhenDeleteUserAndNotAuthenticated() {
         this.webTestClient
                 .mutateWith(csrf())
                 .delete().uri("/api/v1/chats/" + 2)
@@ -297,20 +220,7 @@ class ChatControllerTest {
     }
 
     @Test
-    void shouldDeleteChatForBothUsers() throws Exception {
-        /*this.mockMvc.perform(post("/api/v1/chats")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ChatRequest(2)))
-                )
-                .andExpect(status().isOk());
-        this.mockMvc.perform(delete("/api/v1/chats/2")
-                        .queryParam("all", "true")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                )
-                .andExpect(status().isNoContent());
-        assertThat(chatRepository.findAllBySenderId(1).isEmpty()).isTrue();
-        assertThat(chatRepository.findAllBySenderId(2).isEmpty()).isTrue();*/
+    void shouldDeleteChatForBothUsers() {
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
