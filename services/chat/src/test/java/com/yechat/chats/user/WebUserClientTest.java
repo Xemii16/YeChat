@@ -1,6 +1,7 @@
-package com.yechat.contacts.user;
+package com.yechat.chats.user;
 
 import com.netflix.discovery.EurekaClient;
+import com.yechat.chats.user.response.UserResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +36,11 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 @AutoConfigureWebClient
 @ActiveProfiles("testing")
 @Testcontainers
-class UserClientTest {
+class WebUserClientTest {
 
     @Container
     public static DockerComposeContainer<?> environment =
-            new DockerComposeContainer<>(new File("src/test/resources/compose-test.yml"));
+            new DockerComposeContainer<>(new File("src/test/resources/user-client-compose.yml"));
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
@@ -90,4 +91,5 @@ class UserClientTest {
             String username
     ) {
     }
+
 }

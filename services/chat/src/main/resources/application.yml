@@ -1,16 +1,15 @@
 spring:
   application:
     name: chat-service
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/chats
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/chats
     username: balamut
     password: maks
-  jpa:
-    hibernate:
-      ddl-auto: create
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    user: balamut
+    password: maks
+    url: jdbc:postgresql://localhost:5432/chats
+    baseline-on-migrate: true
 eureka:
   instance:
     hostname: localhost

@@ -1,7 +1,9 @@
 package com.yechat.chats.chat;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
 
@@ -10,15 +12,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
 @Table(name = "chats")
 public class Chat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "chat_id_seq")
-    @SequenceGenerator(name = "chat_id_seq", sequenceName = "chat_id_seq", allocationSize = 1)
     private Integer id;
+    @Column("chat_id")
     private UUID chatId;
+    @Column("sender_id")
     private Integer senderId;
+    @Column("receiver_id")
     private Integer receiverId;
 }

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/YeChat.iml" filepath="$PROJECT_DIR$/.idea/YeChat.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat.main.iml" filepath="$PROJECT_DIR$/.idea/modules/chat.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat.test.iml" filepath="$PROJECT_DIR$/.idea/modules/chat.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/contacts.main.iml" filepath="$PROJECT_DIR$/.idea/modules/contacts.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/contacts.test.iml" filepath="$PROJECT_DIR$/.idea/modules/contacts.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/messages.main.iml" filepath="$PROJECT_DIR$/.idea/modules/messages.main.iml" />

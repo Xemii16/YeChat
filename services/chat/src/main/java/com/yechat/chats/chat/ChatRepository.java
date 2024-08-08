@@ -1,15 +1,17 @@
 package com.yechat.chats.chat;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface ChatRepository extends JpaRepository<Chat, Integer> {
-    boolean existsBySenderIdAndReceiverId(Integer senderId, Integer receiverId);
+@Profile("!testing")
+public interface ChatRepository extends R2dbcRepository<Chat, Integer> {
+    Mono<Boolean> existsBySenderIdAndReceiverId(Integer senderId, Integer receiverId);
 
-    List<Chat> findAllBySenderId(Integer senderId);
+    Flux<Chat> findAllBySenderId(Integer senderId);
 
-    void deleteBySenderIdAndReceiverId(Integer senderId, Integer receiverId);
+    Mono<Void> deleteBySenderIdAndReceiverId(Integer senderId, Integer receiverId);
 }

@@ -1,6 +1,5 @@
 package com.yechat.contacts.contact;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yechat.contacts.contact.request.ContactRequest;
 import com.yechat.contacts.exception.ValidationExceptionHandler;
 import com.yechat.contacts.user.UserClient;
