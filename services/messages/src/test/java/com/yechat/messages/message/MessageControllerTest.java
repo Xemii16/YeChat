@@ -85,19 +85,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldSendMessageWithAuthentication() throws Exception {
+    void shouldSendMessageWithAuthentication() {
         MessageRequest request = new MessageRequest(CHAT_ID, "Hello, World!");
-        /*this.mockMvc.perform(post("/api/v1/messages")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.chat_id").value(request.chatId().toString()))
-                .andExpect(jsonPath("$.content").value(request.content()))
-                .andExpect(jsonPath("$.sender_id").value(1))
-                .andExpect(jsonPath("$.timestamp").isNumber());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -116,13 +105,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldUnauthorizedWhenSendMessageWithoutAuthentication() throws Exception {
+    void shouldUnauthorizedWhenSendMessageWithoutAuthentication() {
         MessageRequest request = new MessageRequest(CHAT_ID, "Hello, World!");
-        /*this.mockMvc.perform(post("/api/v1/messages")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isForbidden());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .post().uri("/api/v1/messages")
@@ -133,14 +117,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldBadRequestWhenSendMessageWithEmptyContent() throws Exception {
+    void shouldBadRequestWhenSendMessageWithEmptyContent() {
         MessageRequest request = new MessageRequest(CHAT_ID, "");
-        /*this.mockMvc.perform(post("/api/v1/messages")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -152,14 +130,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldBadRequestWhenSendMessageWithNonExistChatId() throws Exception {
+    void shouldBadRequestWhenSendMessageWithNonExistChatId() {
         MessageRequest request = new MessageRequest(UUID.randomUUID(), "");
-        /*this.mockMvc.perform(post("/api/v1/messages")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -171,14 +143,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldBadRequestWhenSendMessageWithNullChatId() throws Exception {
+    void shouldBadRequestWhenSendMessageWithNullChatId() {
         MessageRequest request = new MessageRequest(null, "Hello world!");
-        /*this.mockMvc.perform(post("/api/v1/messages")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -190,14 +156,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldBadRequestWhenSendMessageToChatThatNotBelongToUser() throws Exception {
+    void shouldBadRequestWhenSendMessageToChatThatNotBelongToUser() {
         MessageRequest request = new MessageRequest(CHAT_ID_THAT_NOT_BELONG_TO_USER, "Hello, World!");
-        /*this.mockMvc.perform(post("/api/v1/messages")
-                        .with(jwt().jwt(jwt -> jwt.subject("1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -209,20 +169,8 @@ class MessageControllerTest {
     }
 
     @Test
-    void shouldReturnMessages() throws Exception {
+    void shouldReturnMessages() {
         saveTwoMessages();
-        /*this.mockMvc.perform(
-                        get("/api/v1/messages/" + CHAT_ID)
-                                .with(jwt().jwt(jwt -> jwt.subject("1")))
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").exists())
-                .andExpect(jsonPath("$[0].chat_id").value(CHAT_ID.toString()))
-                .andExpect(jsonPath("$[0].sender_id").value(1))
-                .andExpect(jsonPath("$[0].content").value("Hello, World!"))
-                .andExpect(jsonPath("$[0].timestamp").isNumber());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
@@ -243,22 +191,13 @@ class MessageControllerTest {
     @Test
     @Disabled
         // TODO: Fix this test (maybe will delete it)
-    void shouldReturnForbiddenWhenReturnMessages() throws Exception {
+    void shouldReturnForbiddenWhenReturnMessages() {
         saveTwoMessages();
-        /*this.mockMvc.perform(
-                        get("/api/v1/messages/" + CHAT_ID)
-                                .with(jwt().jwt(jwt -> jwt.subject("2")))
-                )
-                .andExpect(status().isForbidden());*/
     }
 
     @Test
-    void shouldReturnUnauthorizedWhenReturnMessages() throws Exception {
+    void shouldReturnUnauthorizedWhenReturnMessages() {
         saveTwoMessages();
-        /*this.mockMvc.perform(
-                        get("/api/v1/messages/" + CHAT_ID)
-                )
-                .andExpect(status().isUnauthorized());*/
         this.webTestClient
                 .mutateWith(csrf())
                 .get().uri("/api/v1/messages" + CHAT_ID)
