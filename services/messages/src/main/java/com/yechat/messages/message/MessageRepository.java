@@ -1,13 +1,15 @@
 package com.yechat.messages.message;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 
-import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface MessageRepository extends CrudRepository<Message, Integer> {
+@Profile("!testing")
+public interface MessageRepository extends ReactiveCrudRepository<Message, Integer> {
 
-    List<Message> findAllByChatId(UUID chatId);
+    Flux<Message> findAllByChatId(UUID chatId);
 }

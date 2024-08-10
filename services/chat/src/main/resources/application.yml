@@ -10,6 +10,11 @@ spring:
     password: maks
     url: jdbc:postgresql://localhost:5432/chats
     baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000
 eureka:
   instance:
     hostname: localhost
