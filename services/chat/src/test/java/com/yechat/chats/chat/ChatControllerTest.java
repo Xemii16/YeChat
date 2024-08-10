@@ -2,6 +2,7 @@ package com.yechat.chats.chat;
 
 import com.yechat.chats.chat.exception.ChatExceptionHandler;
 import com.yechat.chats.chat.request.ChatRequest;
+import com.yechat.chats.chat.response.ChatResponse;
 import com.yechat.chats.user.UserClient;
 import com.yechat.chats.user.exception.UserExceptionHandler;
 import com.yechat.chats.user.exception.UserNotFoundException;
@@ -14,9 +15,7 @@ import org.springframework.boot.test.autoconfigure.data.r2dbc.AutoConfigureDataR
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -236,5 +235,81 @@ class ChatControllerTest {
                 .expectStatus().isNoContent();
         assertThat(chatRepository.findAllBySenderId(1).count().block()).isEqualTo(0);
         assertThat(chatRepository.findAllBySenderId(2).count().block()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldReturnChatById() {
+        ChatResponse response = this.webTestClient
+                .mutateWith(csrf())
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .post().uri("/api/v1/chats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ChatRequest(2))
+                .exchange()
+                .expectBody(ChatResponse.class)
+                .returnResult().getResponseBody();
+        assert response != null;
+        this.webTestClient
+                .mutateWith(csrf())
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .get().uri("/api/v1/chats/" + response.getChatId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.chat_id").isEqualTo(response.getChatId().toString())
+                .jsonPath("$.receiver_id").isEqualTo(response.getReceiverId());
+    }
+
+    @Test
+    void shouldReturnBadRequestIfChatNotFound() {
+        this.webTestClient
+                .mutateWith(csrf())
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .get().uri("/api/v1/chats/" + "123e4567-e89b-12d3-a456-426614174000")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void shouldReturnBadRequestIfChatNotBelongToUser() {
+        ChatResponse response = this.webTestClient
+                .mutateWith(csrf())
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("2")))
+                .post().uri("/api/v1/chats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ChatRequest(3))
+                .exchange()
+                .expectBody(ChatResponse.class)
+                .returnResult().getResponseBody();
+        assert response != null;
+        this.webTestClient
+                .mutateWith(csrf())
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("2")))
+                .get().uri("/api/v1/chats/" + response.getChatId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenGetChatByChatId() {
+        ChatResponse response = this.webTestClient
+                .mutateWith(csrf())
+                .mutateWith(mockJwt().jwt(jwt -> jwt.subject("1")))
+                .post().uri("/api/v1/chats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new ChatRequest(2))
+                .exchange()
+                .expectBody(ChatResponse.class)
+                .returnResult().getResponseBody();
+        assert response != null;
+        this.webTestClient
+                .mutateWith(csrf())
+                .get().uri("/api/v1/chats/" + response.getChatId())
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 }

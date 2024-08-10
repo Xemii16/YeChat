@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/chats")
 @RequiredArgsConstructor
@@ -32,6 +34,15 @@ public class ChatController {
     @ResponseStatus(HttpStatus.OK)
     public Flux<ChatResponse> getChats(@AuthenticationPrincipal Jwt jwt) {
         return chatService.getChats(jwt);
+    }
+
+    @GetMapping("/{chatId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ChatResponse> getChat(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("chatId") UUID chatId
+    ) {
+        return chatService.getChat(chatId, jwt);
     }
 
     @DeleteMapping("/{id}")

@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -78,6 +79,14 @@ public class ChatService {
         return chatRepository.save(receiverChat)
                 .then(chatRepository.save(senderChat));
 
+    }
+
+    public Mono<ChatResponse> getChat(UUID chatId, Jwt jwt) {
+        Integer userId = getUserId(jwt);
+        return chatRepository
+                .findByChatIdAndSenderId(chatId, userId)
+                .switchIfEmpty(Mono.error(new ChatNotFoundException(userId, Integer.MIN_VALUE)))
+                .map(chatMapper::toResponse);
     }
 
     private Integer getUserId(@NonNull Jwt jwt) {
