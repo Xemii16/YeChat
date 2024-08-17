@@ -13,11 +13,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ConnectionController {
 
-    private final ConnectionService connectionService;
+    @MessageMapping("test")
+    public Mono<Void> test() {
+        return Mono.empty();
+    }
 
     @ConnectMapping
-    public Mono<Void> connect(@AuthenticationPrincipal Jwt jwt, RSocketRequester requester) {
-        System.out.println(jwt.getClaimAsString("sub"));
-        return Mono.empty();
+    public void connect(RSocketRequester requester) {
+        assert requester != null;
+        System.out.println("connect");
     }
 }

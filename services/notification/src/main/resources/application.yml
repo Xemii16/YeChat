@@ -1,7 +1,8 @@
 spring:
   rsocket:
     server:
-      port: 7000
+      mapping-path: /rsocket
+      transport: websocket
   application:
     name: notification-service
   security:
