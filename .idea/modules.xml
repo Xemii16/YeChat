@@ -11,6 +11,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/messages.main.iml" filepath="$PROJECT_DIR$/.idea/modules/messages.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/messages.test.iml" filepath="$PROJECT_DIR$/.idea/modules/messages.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/notification.main.iml" filepath="$PROJECT_DIR$/.idea/modules/notification.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/testing/testing.iml" filepath="$PROJECT_DIR$/services/testing/testing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/testing.main.iml" filepath="$PROJECT_DIR$/.idea/modules/testing.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/testing.test.iml" filepath="$PROJECT_DIR$/.idea/modules/testing.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/users.main.iml" filepath="$PROJECT_DIR$/.idea/modules/users.main.iml" />
     </modules>
   </component>

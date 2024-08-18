@@ -35,8 +35,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
 	implementation("org.springframework.security:spring-security-messaging")
 	implementation("org.springframework.security:spring-security-rsocket")
-	/*testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")*/
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    /*testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")*/
 	testImplementation("org.springframework.security:spring-security-test")
+	/*testImplementation("org.springframework.cloud:spring-cloud-function-rsocket")*/
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	annotationProcessor("org.projectlombok:lombok")

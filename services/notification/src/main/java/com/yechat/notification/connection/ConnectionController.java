@@ -1,5 +1,6 @@
 package com.yechat.notification.connection;
 
+import com.yechat.notification.rsocket.JwtPrincipal;
 import com.yechat.notification.rsocket.RSocketResponder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,7 +20,7 @@ public class ConnectionController {
     }
 
     @ConnectMapping
-    public void connect(RSocketRequester requester) {
+    public void connect(@JwtPrincipal Jwt jwt, RSocketRequester requester) {
         assert requester != null;
         System.out.println("connect");
     }
