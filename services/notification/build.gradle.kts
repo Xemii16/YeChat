@@ -33,10 +33,10 @@ dependencies {
 	/*implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")*/
 	/*implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-reactive")*/
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
-	implementation("org.springframework.security:spring-security-messaging")
-	implementation("org.springframework.security:spring-security-rsocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    /*testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")*/
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	/*testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")*/
+	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	/*testImplementation("org.springframework.cloud:spring-cloud-function-rsocket")*/
 	compileOnly("org.projectlombok:lombok")

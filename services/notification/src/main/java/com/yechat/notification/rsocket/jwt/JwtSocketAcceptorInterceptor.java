@@ -1,4 +1,4 @@
-package com.yechat.notification.rsocket;
+package com.yechat.notification.rsocket.jwt;
 
 import io.rsocket.SocketAcceptor;
 import io.rsocket.plugins.SocketAcceptorInterceptor;

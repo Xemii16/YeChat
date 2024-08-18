@@ -1,4 +1,4 @@
-package com.yechat.notification.rsocket;
+package com.yechat.notification.rsocket.jwt;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -8,7 +8,6 @@ import org.springframework.messaging.handler.invocation.reactive.HandlerMethodAr
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;

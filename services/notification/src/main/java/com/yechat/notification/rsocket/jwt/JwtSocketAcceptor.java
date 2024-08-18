@@ -1,4 +1,4 @@
-package com.yechat.notification.rsocket;
+package com.yechat.notification.rsocket.jwt;
 
 import io.netty.buffer.ByteBuf;
 import io.rsocket.ConnectionSetupPayload;
@@ -6,14 +6,9 @@ import io.rsocket.RSocket;
 import io.rsocket.SocketAcceptor;
 import io.rsocket.metadata.CompositeMetadata;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
-import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -36,7 +31,7 @@ public class JwtSocketAcceptor implements SocketAcceptor {
         ByteBuf byteBuf = setup.metadata();
         CompositeMetadata compositeMetadata = new CompositeMetadata(byteBuf, false);
         Optional<BearerTokenAuthenticationToken> token = compositeMetadata.stream()
-                .filter(entry -> BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE.toString().equals(entry.getMimeType()))
+                .filter(entry -> AuthenticationMimeType.BEARER_TOKEN.getMimeTypeAsString().equals(entry.getMimeType()))
                 .map(entry -> {
                     ByteBuf content = entry.getContent();
                     String tokenString = content.toString(StandardCharsets.UTF_8);
