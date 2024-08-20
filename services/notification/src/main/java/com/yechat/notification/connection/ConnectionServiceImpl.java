@@ -17,6 +17,9 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     @Override
     public Mono<Void> connect(Jwt jwt, RSocketRequester clientRequester) {
+        if (clientRequester == null) {
+            return Mono.error(new NullPointerException("RSocketRequester is null"));
+        }
         return jwtRSocketRequesterRepository.save(jwt, clientRequester)
                 .doOnSuccess(v -> log.debug("Saved connected user with id: {}", jwt.getSubject()))
                 .then();

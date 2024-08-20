@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.annotation.ConnectMapping;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
@@ -30,5 +31,10 @@ public class ConnectionController {
     @MessageExceptionHandler(NullPointerException.class)
     public void handleException(NullPointerException e) {
         log.warn("Error handling connection request: {}", e.getMessage());
+    }
+
+    @MessageExceptionHandler(AuthorizationDeniedException.class)
+    public void handleException(AuthorizationDeniedException e) {
+        log.info("Connection failed: {}", e.getMessage());
     }
 }

@@ -43,7 +43,7 @@ class ConnectionControllerTest {
     void test1() {
         StepVerifier.create(requester.route("test")
                         .data(Mono.empty())
-                        .send().delayElement(Duration.ofSeconds(5)))
+                        .send())
                 .verifyComplete();
     }
 }

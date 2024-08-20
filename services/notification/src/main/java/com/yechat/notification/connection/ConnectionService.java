@@ -7,7 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface ConnectionService {
 
-    // TODO FIXME
-    /*@PreAuthorize("@verifyJwt().apply(#jwt)")*/
+    @PreAuthorize("@verifyJwt.apply(#jwt)")
     Mono<Void> connect(Jwt jwt, RSocketRequester clientRequester);
 }

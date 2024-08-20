@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.function.Function;
 
 @Configuration
@@ -22,7 +23,19 @@ public class SecurityConfiguration {
 
     @Bean
     public Function<Jwt, Mono<Boolean>> verifyJwt() {
-        // TODO: implement this
-        return jwt -> Mono.just(true);
+        return jwt -> Mono.defer(() -> {
+            Instant notBefore = jwt.getNotBefore();
+            Instant expiresAt = jwt.getExpiresAt();
+            if (expiresAt == null) {
+                return Mono.just(false);
+            }
+            if (notBefore.isAfter(Instant.now())) {
+                return Mono.just(false);
+            }
+            if (expiresAt.isBefore(Instant.now())) {
+                return Mono.just(false);
+            }
+            return Mono.just(true);
+        });
     }
 }
