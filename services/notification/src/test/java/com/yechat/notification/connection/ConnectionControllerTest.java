@@ -1,7 +1,7 @@
 package com.yechat.notification.connection;
 
+import com.yechat.notification.JwtAuthenticationTestConfiguration;
 import com.yechat.notification.rsocket.jwt.AuthenticationMimeType;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.net.URI;
+import java.time.Duration;
 
 @SpringBootTest(
         properties = {
@@ -35,13 +36,14 @@ class ConnectionControllerTest {
         requester = builder
                 .setupMetadata("real-token", AuthenticationMimeType.BEARER_TOKEN.parseMimeType())
                 .websocket(URI.create("ws://localhost:" + port + "/rsocket"));
+        requester.rsocketClient().source().block(Duration.ofSeconds(5));
     }
 
     @Test
     void test1() {
         StepVerifier.create(requester.route("test")
                         .data(Mono.empty())
-                        .send())
+                        .send().delayElement(Duration.ofSeconds(5)))
                 .verifyComplete();
     }
 }

@@ -35,9 +35,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.kafka:spring-kafka")
 	/*testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")*/
 	testImplementation("org.springframework.security:spring-security-test")
-	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("org.springframework.kafka:spring-kafka-test")
 	/*testImplementation("org.springframework.cloud:spring-cloud-function-rsocket")*/
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")

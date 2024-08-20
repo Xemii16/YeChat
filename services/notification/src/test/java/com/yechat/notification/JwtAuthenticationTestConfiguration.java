@@ -1,4 +1,4 @@
-package com.yechat.notification.connection;
+package com.yechat.notification;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
