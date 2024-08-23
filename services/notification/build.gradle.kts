@@ -31,14 +31,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	/*implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")*/
-	/*implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-reactive")*/
+	implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-reactive")
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.springframework.kafka:spring-kafka")
-	/*testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")*/
+	testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
 	testImplementation("org.springframework.security:spring-security-test")
-	testImplementation("org.springframework.kafka:spring-kafka-test")
 	/*testImplementation("org.springframework.cloud:spring-cloud-function-rsocket")*/
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")

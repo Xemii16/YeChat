@@ -20,11 +20,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.MimeTypeUtils;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -71,7 +68,7 @@ class MessageNotificationServiceImplTest {
                         .build(),
                 requester
         ).block();
-        messageNotificationService.sendMessage(1, new MessageNotification("test"))
+        messageNotificationService.sendMessage(1, new MessageNotification(4324, "test"))
                 .block();
         Boolean join = responder.getFuture().get(5, TimeUnit.SECONDS);
         assertThat(join).isTrue();
@@ -96,6 +93,7 @@ class MessageNotificationServiceImplTest {
                 Gson gson = new GsonBuilder().create();
                 MessageNotification messageNotification = gson.fromJson(message, MessageNotification.class);
                 assertThat(messageNotification.content()).isEqualTo("test");
+                assertThat(messageNotification.senderId()).isEqualTo(4324);
                 future.completeAsync(() -> true);
             }
 

@@ -42,7 +42,6 @@ class ConnectionServiceImplTest {
     @BeforeEach
     void setUp() {
         assert connectionService != null;
-        assert requester != null;
         assert repository != null;
     }
 
