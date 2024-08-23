@@ -1,0 +1,29 @@
+spring:
+  rsocket:
+    server:
+      mapping-path: /rsocket
+      transport: websocket
+  application:
+    name: notification-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000
+  cloud:
+    function:
+      definition: listenMessageInformation
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+      bindings:
+        listenMessageInformation-in-0:
+          destination: message-notification
+          contentType: application/json
+      default:
+        group: notification-service
+logging:
+  level:
+    reactor: debug
+    io.rsocket: debug

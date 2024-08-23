@@ -11,6 +11,8 @@
     <file type="web" url="file://$PROJECT_DIR$/services/contacts" />
     <file type="web" url="file://$PROJECT_DIR$/services/discovery" />
     <file type="web" url="file://$PROJECT_DIR$/services/messages" />
+    <file type="web" url="file://$PROJECT_DIR$/services/notification" />
+    <file type="web" url="file://$PROJECT_DIR$/services/testing" />
     <file type="web" url="file://$PROJECT_DIR$/services/users" />
   </component>
   <component name="PWA">
