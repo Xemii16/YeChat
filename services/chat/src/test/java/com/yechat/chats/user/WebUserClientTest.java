@@ -44,10 +44,11 @@ class WebUserClientTest {
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
+        environment.start();
+        Integer port = environment.getServicePort("discovery-server", 8761);
+        String host = environment.getServiceHost("discovery-server", 8761);
         registry.add("eureka.client.serviceUrl.defaultZone",
-                () -> "http://discovery-server:"
-                        + 8761
-                        + "/eureka/");
+                () -> String.format("http://%s:%s/eureka/", host, port));
     }
 
     @Autowired
