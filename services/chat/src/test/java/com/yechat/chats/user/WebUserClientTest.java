@@ -59,7 +59,7 @@ class WebUserClientTest {
 
     @BeforeEach
     void setUp() {
-        await().atMost(Duration.ofSeconds(30)).until(() -> eurekaClient.getApplications().size() > 0);
+        await().atMost(Duration.ofSeconds(60)).until(() -> eurekaClient.getApplications().size() > 0);
     }
 
     @Autowired
