@@ -1,0 +1,22 @@
+name: Testing chat service
+on:
+  push:
+    paths:
+      - 'services/chat/**'
+jobs:
+  build-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+      - name: Test with Gradle
+        working-directory: services/chat
+        run: ./gradlew test
+
+
+
