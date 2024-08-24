@@ -45,7 +45,7 @@ class WebUserClientTest {
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
         registry.add("eureka.client.serviceUrl.defaultZone",
-                () -> "http://localhost:"
+                () -> "http://discovery-server:"
                         + 8761
                         + "/eureka/");
     }
