@@ -1,8 +1,8 @@
 services:
   discovery-server:
-    image: xemii16/yechat-discovery:0.0.1-SNAPSHOT
+    image: xemii16/yechat-discovery:0.0.2
     ports:
-      - 8761:8761
+      - "8761:8761"
     command:
       - --eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/, http://localhost:8761/eureka/
     networks:
@@ -10,7 +10,7 @@ services:
   user-service:
     image: xemii16/yechat-users:0.0.2
     ports:
-      - 8080:8080
+      - "8080:8080"
     command:
       - --spring.datasource.url=jdbc:postgresql://postgresql:5432/users
       - --eureka.client.serviceUrl.defaultZone=http://discovery-server:8761/eureka/
@@ -27,7 +27,7 @@ services:
       PGDATA: /data/postgres
       POSTGRES_DB: users
     ports:
-      - 5432:5432
+      - "5432:5432"
     networks:
       - ye-chat
 networks:

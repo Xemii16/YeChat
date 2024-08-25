@@ -41,6 +41,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("io.projectreactor:reactor-test")
     compileOnly("org.projectlombok:lombok")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -57,4 +58,10 @@ dependencyManagement {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register("getVersionName") {
+    doLast {
+        println("$version")
+    }
 }

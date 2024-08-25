@@ -55,6 +55,7 @@ class ChatControllerTest {
         registry.add("spring.r2dbc.url", () -> postgres.getJdbcUrl()
                 .replace("jdbc", "r2dbc"));
         registry.add("spring.r2dbc.username", postgres::getUsername);
+
         registry.add("spring.r2dbc.password", postgres::getPassword);
         registry.add("spring.flyway.url", postgres::getJdbcUrl);
         registry.add("spring.flyway.user", postgres::getUsername);

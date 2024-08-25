@@ -1,0 +1,33 @@
+name: Testing chat service
+on:
+  pull_request:
+    paths:
+      - 'services/chat/**'
+jobs:
+  testing-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: | 
+            services/chat/*.gradle*
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+        working-directory: services/chat
+      - name: Test with Gradle
+        working-directory: services/chat
+        run: ./gradlew test
+
+
+
