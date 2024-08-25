@@ -34,9 +34,6 @@ jobs:
     steps:
       - name: Checkout YeChat repository
         uses: actions/checkout@v4
-      - name: Read ChatService version
-        working-directory: services/chat
-        run: echo "VERSION_NAME=$( ./gradlew -q getVersionName )" >> $GITHUB_ENV
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
@@ -51,11 +48,14 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
         working-directory: services/chat
+      - name: Read ChatService version
+        working-directory: services/chat
+        run: echo "VERSION_NAME=$( ./gradlew -q getVersionName )" >> $GITHUB_ENV
       - name: Build ChatService
         working-directory: services/chat
         run: ./gradlew build
       - name: Log in to Docker Hub
-        run: echo docker login -u "${{env.DOCKER_EMAIL}}" -p "${{env.DOCKER_PASSWORD}}"
+        run: echo docker login -u "${{secrets.DOCKER_EMAIL}}" -p "${{secrets.DOCKER_PASSWORD}}"
       - name: Build Docker image
         run: docker build -t "${{env.DOCKER_USERNAME}}"/yechat-chat:latest -t "${{env.DOCKER_USERNAME}}"/yechat-chat:"${{env.VERSION_NAME}}" services/chat
       - name: Push Docker image
