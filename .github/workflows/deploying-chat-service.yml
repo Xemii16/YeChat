@@ -53,7 +53,7 @@ jobs:
         run: echo "VERSION_NAME=$( ./gradlew -q getVersionName )" >> $GITHUB_ENV
       - name: Build ChatService
         working-directory: services/chat
-        run: ./gradlew build
+        run: ./gradlew bootJar
       - name: Log in to Docker Hub
         run: echo docker login -u "${{secrets.DOCKER_EMAIL}}" -p "${{secrets.DOCKER_PASSWORD}}"
       - name: Build Docker image
