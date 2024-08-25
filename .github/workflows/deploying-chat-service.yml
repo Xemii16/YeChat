@@ -1,49 +1,63 @@
 name: Deploying chat service
 on:
-  workflow_run:
-    workflows:
-      - "Testing chat service"
-    types:
-      - completed
+  push:
+    paths:
+      - 'services/chat/**'
 jobs:
+  testing-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: |
+            services/chat/*.gradle*
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+        working-directory: services/chat
+      - name: Test with Gradle
+        working-directory: services/chat
+        run: ./gradlew test
   read-version:
+    needs: testing-project
     runs-on: ubuntu-latest
     steps:
       - name: Checkout YeChat repository
-        if: github.event.workflow_run.conclusion == 'success'
         uses: actions/checkout@v4
       - name: Read ChatService version
-        if: github.event.workflow_run.conclusion == 'success'
         working-directory: services/chat
         run: echo "VERSION_NAME=$( ./gradlew -q getVersionName )" >> $GITHUB_ENV
       - name: Setup Java 21
-        if: github.event.workflow_run.conclusion == 'success'
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
           cache: 'gradle'
       - name: Setup Gradle
-        if: github.event.workflow_run.conclusion == 'success'
         uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
       - name: Grant execute permission for Gradle wrapper
-        if: github.event.workflow_run.conclusion == 'success'
         run: chmod +x ./gradlew
         working-directory: services/chat
       - name: Build ChatService
-        if: github.event.workflow_run.conclusion == 'success'
         working-directory: services/chat
         run: ./gradlew build
       - name: Log in to Docker Hub
-        if: github.event.workflow_run.conclusion == 'success'
         run: echo docker login -u "${{env.DOCKER_EMAIL}}" -p "${{env.DOCKER_PASSWORD}}"
       - name: Build Docker image
-        if: github.event.workflow_run.conclusion == 'success'
         run: docker build -t "${{env.DOCKER_USERNAME}}"/yechat-chat:latest -t "${{env.DOCKER_USERNAME}}"/yechat-chat:"${{env.VERSION_NAME}}" services/chat
       - name: Push Docker image
-        if: github.event.workflow_run.conclusion == 'success'
         run: docker push ${{env.DOCKER_USERNAME}}/chat-service:${{env.VERSION_NAME}}
 
