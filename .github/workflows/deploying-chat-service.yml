@@ -1,11 +1,5 @@
 name: Deploying chat service
 on:
-  workflow_call:
-    inputs:
-      environment:
-        required: true
-        type: string
-        description: 'The environment to deploy the chat service to'
   push:
     paths:
       - 'services/chat/**'
@@ -36,6 +30,7 @@ jobs:
         run: ./gradlew test
   read-version:
     needs: testing-project
+    environment: xemii16
     runs-on: ubuntu-latest
     steps:
       - name: Checkout YeChat repository
