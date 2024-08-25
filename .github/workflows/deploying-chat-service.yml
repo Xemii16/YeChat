@@ -57,7 +57,7 @@ jobs:
       - name: Log in to Docker Hub
         run: echo docker login -u ${{secrets.DOCKER_EMAIL}} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Build Docker image
-        run: docker build -t ${{vars.DOCKER_USERNAME}}/yechat-chat:latest -t ${{vars.DOCKER_USERNAME}}/yechat-chat:${{env.VERSION_NAME}} services/chat
+        run: docker build -t xemii16/yechat-chat:latest -t xemii16/yechat-chat:${{env.VERSION_NAME}} services/chat
       - name: Push Docker image
-        run: docker push ${{vars.DOCKER_USERNAME}}/chat-service:${{env.VERSION_NAME}}
+        run: docker push xemii16/yechat-chat:${{env.VERSION_NAME}}
 
