@@ -1,5 +1,11 @@
 name: Deploying chat service
 on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: 'The environment to deploy the chat service to'
   push:
     paths:
       - 'services/chat/**'
@@ -60,10 +66,10 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{secrets.DOCKER_EMAIL}}
-          password: ${{secrets.DOCKER_PASSWORD}}
+          username: ${{ secrets.DOCKER_EMAIL }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker image
-        run: docker build -t xemii16/yechat-chat:latest -t xemii16/yechat-chat:${{env.VERSION_NAME}} services/chat
+        run: docker build -t xemii16/yechat-chat:latest -t xemii16/yechat-chat:${{ env.VERSION_NAME }} services/chat
       - name: Push Docker image
-        run: docker push xemii16/yechat-chat:${{env.VERSION_NAME}}
+        run: docker push xemii16/yechat-chat:${{ env.VERSION_NAME }}
 
