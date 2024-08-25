@@ -68,5 +68,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t ${{ vars.DOCKER_USERNAME }}/yechat-chat:latest -t ${{ vars.DOCKER_USERNAME }}/yechat-chat:${{ env.VERSION_NAME }} services/chat
       - name: Push Docker image
-        run: docker push ${{ vars.DOCKER_USERNAME }}/yechat-chat:${{ env.VERSION_NAME }}
-
+        run: |
+          docker push ${{ vars.DOCKER_USERNAME }}/yechat-chat:${{ env.VERSION_NAME }}
+          docker push ${{ vars.DOCKER_USERNAME }}/yechat-chat:latest
+          
