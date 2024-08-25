@@ -58,3 +58,9 @@ dependencyManagement {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register("getVersionName") {
+    doLast {
+        println("$version")
+    }
+}

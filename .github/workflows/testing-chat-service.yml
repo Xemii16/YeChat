@@ -4,7 +4,7 @@ on:
     paths:
       - 'services/chat/**'
 jobs:
-  build-project:
+  testing-project:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
