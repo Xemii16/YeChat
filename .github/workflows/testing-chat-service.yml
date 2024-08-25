@@ -1,6 +1,6 @@
 name: Testing chat service
 on:
-  push:
+  pull_request:
     paths:
       - 'services/chat/**'
 jobs:
