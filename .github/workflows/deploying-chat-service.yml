@@ -4,7 +4,7 @@ on:
     paths:
       - 'services/chat/**'
 jobs:
-  testing-project:
+  testing:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,8 +28,8 @@ jobs:
       - name: Test with Gradle
         working-directory: services/chat
         run: ./gradlew test
-  read-version:
-    needs: testing-project
+  deploying:
+    needs: testing
     environment: xemii16
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +64,7 @@ jobs:
           username: ${{ secrets.DOCKER_EMAIL }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker image
-        run: docker build -t xemii16/yechat-chat:latest -t xemii16/yechat-chat:${{ env.VERSION_NAME }} services/chat
+        run: docker build -t ${{ vars.DOCKER_USERNAME }}/yechat-chat:latest -t ${{ vars.DOCKER_USERNAME }}/yechat-chat:${{ env.VERSION_NAME }} services/chat
       - name: Push Docker image
-        run: docker push xemii16/yechat-chat:${{ env.VERSION_NAME }}
+        run: docker push ${{ vars.DOCKER_USERNAME }}/yechat-chat:${{ env.VERSION_NAME }}
 
