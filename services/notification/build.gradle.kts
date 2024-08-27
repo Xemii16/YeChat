@@ -35,6 +35,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
 	testImplementation("org.springframework.security:spring-security-test")
 	/*testImplementation("org.springframework.cloud:spring-cloud-function-rsocket")*/
