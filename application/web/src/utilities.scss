@@ -1,0 +1,23 @@
+@use "sass:map" as map;
+
+@function get-theme-hsl-color($theme, $color, $lightness, $alpha: 100%) {
+  @return get-hsl-color(map.get($theme, $color), $lightness);
+}
+
+@function get-hsl-color($color, $lightness, $alpha: 100%) {
+  $hue: hue($color);
+  $saturation: saturation($color);
+  @return hsl($hue, $saturation, $lightness, $alpha);
+}
+
+@function get-scheme-hsl($schemas, $color, $alpha: null) {
+  @return update-hsl(map.get($schemas, $color), $alpha: $alpha);
+}
+
+@function update-hsl($hsl, $alpha: null) {
+  $hue: hue($hsl);
+  $saturation: saturation($hsl);
+  $lightness: lightness($hsl);
+  $alpha: if($alpha == null, alpha($hsl), $alpha);
+  @return hsla($hue, $saturation, $lightness, $alpha);
+}

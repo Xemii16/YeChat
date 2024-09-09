@@ -1,1 +1,137 @@
-/* You can add global styles to this file, and also import other style files */
+@use "sass:color" as color;
+@use "sass:map" as map;
+@use "utilities" as utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+$light-key-colors: (
+  "primary": #205295,
+  "secondary": #0A2647,
+  "error": #FF5449,
+  "neutral": #909094,
+  "neutral-variant": #8D9198
+);
+$schemas: (
+  "primary": utilities.get-theme-hsl-color($light-key-colors, "primary", 40%),
+  "on-primary": utilities.get-theme-hsl-color($light-key-colors, "primary", 100%),
+  "secondary": utilities.get-theme-hsl-color($light-key-colors, "secondary", 40%),
+  "on-secondary": utilities.get-theme-hsl-color($light-key-colors, "secondary", 100%),
+  "primary-container": utilities.get-theme-hsl-color($light-key-colors, "primary", 90%),
+  "on-primary-container": utilities.get-theme-hsl-color($light-key-colors, "primary", 10%),
+  "secondary-container": utilities.get-theme-hsl-color($light-key-colors, "secondary", 90%),
+  "on-secondary-container": utilities.get-theme-hsl-color($light-key-colors, "secondary", 10%),
+  "error": utilities.get-theme-hsl-color($light-key-colors, "error", 40%),
+  "on-error": utilities.get-theme-hsl-color($light-key-colors, "error", 100%),
+  "error-container": utilities.get-theme-hsl-color($light-key-colors, "error", 90%),
+  "on-error-container": utilities.get-theme-hsl-color($light-key-colors, "error", 10%),
+  "surface": utilities.get-theme-hsl-color($light-key-colors, "neutral", 98%),
+  "on-surface": utilities.get-theme-hsl-color($light-key-colors, "neutral", 10%),
+  "surface-container-lowest": utilities.get-theme-hsl-color($light-key-colors, "neutral", 100%),
+  "surface-container-low": utilities.get-theme-hsl-color($light-key-colors, "neutral", 96%),
+  "surface-container": utilities.get-theme-hsl-color($light-key-colors, "neutral", 94%),
+  "surface-container-high": utilities.get-theme-hsl-color($light-key-colors, "neutral", 92%),
+  "surface-container-highest": utilities.get-theme-hsl-color($light-key-colors, "neutral", 90%),
+  "on-surface-variant": utilities.get-theme-hsl-color($light-key-colors, "neutral-variant", 20%),
+  "outline": utilities.get-theme-hsl-color($light-key-colors, "neutral-variant", 40%),
+  "outline-variant": utilities.get-theme-hsl-color($light-key-colors, "neutral-variant", 60%),
+  "inverse-surface": utilities.get-theme-hsl-color($light-key-colors, "neutral", 20%),
+  "inverse-on-surface": utilities.get-theme-hsl-color($light-key-colors, "neutral", 95%),
+  "inverse-primary": utilities.get-theme-hsl-color($light-key-colors, "primary", 80%),
+  "scrim": utilities.get-theme-hsl-color($light-key-colors, "neutral", 0%),
+  "shadow": utilities.get-theme-hsl-color($light-key-colors, "neutral", 0%)
+);
+
+$states: (
+  "primary": (
+    "8": utilities.get-scheme-hsl($schemas, "primary", 8%),
+    "12": utilities.get-scheme-hsl($schemas, "primary", 12%),
+    "16": utilities.get-scheme-hsl($schemas, "primary", 16%),
+  ),
+  "on-primary": (
+    "8": utilities.get-scheme-hsl($schemas, "on-primary", 8%),
+    "12": utilities.get-scheme-hsl($schemas, "on-primary", 12%),
+    "16": utilities.get-scheme-hsl($schemas, "on-primary", 16%),
+  ),
+  "on-surface": (
+    "8": utilities.get-scheme-hsl($schemas, "on-surface", 8%),
+    "12": utilities.get-scheme-hsl($schemas, "on-surface", 12%),
+    "16": utilities.get-scheme-hsl($schemas, "on-surface", 16%),
+  ),
+  "on-secondary-container": (
+    "8": utilities.get-scheme-hsl($schemas, "on-secondary-container", 8%),
+    "12": utilities.get-scheme-hsl($schemas, "on-secondary-container", 12%),
+    "16": utilities.get-scheme-hsl($schemas, "on-secondary-container", 16%),
+  ),
+  "on-surface-variant": (
+    "8": utilities.get-scheme-hsl($schemas, "on-surface-variant", 8%),
+    "12": utilities.get-scheme-hsl($schemas, "on-surface-variant", 12%),
+    "16": utilities.get-scheme-hsl($schemas, "on-surface-variant", 16%),
+  )
+);
+
+$default-font: Inter;
+
+$fonts : (
+  "display": (
+    "large": 57px/64px $default-font,
+    "medium": 45/52px $default-font,
+    "small": 36px/44px $default-font
+  ),
+  "headline": (
+    "large": 32px/40px $default-font,
+    "medium": 28/36px $default-font,
+    "small": 24px/32px $default-font
+  ),
+  "title": (
+    "large": 22px/28px $default-font,
+    "medium": 16/24px $default-font,
+    "small": 14px/20px $default-font
+  ),
+  "label": (
+    "large": 14px/20px $default-font,
+    "medium": 12px/16px $default-font,
+    "small": 11px/16px $default-font
+  ),
+  "body": (
+    "large": 16px/24px $default-font,
+    "medium": 14px/20px $default-font,
+    "small": 12px/16px $default-font
+  ),
+  "logo": (
+    "large": 57px/64px $default-font
+  )
+);
+
+@function get-font($font, $type) {
+  $map: map.get($fonts, $font);
+  @return map.get($map, $type);
+}
+
+@function get-scheme-color($scheme) {
+  @return map.get($schemas, $scheme);
+}
+
+@function get-state-color($state, $opacity) {
+  $map: map.get($states, $state);
+  @return map.get($map, $opacity);
+}
+
+%default-font {
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+:root {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: fit-content;
+}
