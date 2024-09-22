@@ -1,12 +1,28 @@
-import { Component } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from "@angular/core";
+import {NgClass} from "@angular/common";
 
 @Component({
-  selector: 'app-button',
+  selector: 'app-button-base',
   standalone: true,
-  imports: [],
-  templateUrl: './button.component.html',
-  styleUrl: './button.component.scss'
+  imports: [
+    NgClass
+  ],
+  template: ''
 })
+/**
+ * Base class for all buttons
+ * @author Maks Balamut
+ */
 export class ButtonComponent {
+  /**
+   * Only use this method if you need worked disabled state
+   */
+  @Output() onclick = new EventEmitter<void>();
+  @Input() disabled = false;
 
+  protected onClick(): void {
+    if (!this.disabled) {
+      this.onclick.emit();
+    }
+  }
 }

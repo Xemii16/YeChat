@@ -102,9 +102,17 @@ $fonts : (
   )
 );
 
+$elevations: (
+  "1": #{"0 1px 2px 0 #{rgba(0, 0, 0, 0.3)}, 0 1px 3px 1px #{rgba(0, 0, 0, 0.15)}"},
+);
+
 @function get-font($font, $type) {
   $map: map.get($fonts, $font);
   @return map.get($map, $type);
+}
+
+@function get-elevation($elevation) {
+  @return map.get($elevations, $elevation);
 }
 
 @function get-scheme-color($scheme) {
@@ -134,4 +142,12 @@ html, body {
   margin: 0;
   width: 100%;
   height: fit-content;
+}
+
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-weight: 400;
+  font-size: 24px;
+  font-variation-settings: 'FILL' 0;
+  src: url("../public/icons/MaterialSymbolsRounded-VariableFont_FILL,GRAD,opsz,wght.ttf") format("truetype");
 }
