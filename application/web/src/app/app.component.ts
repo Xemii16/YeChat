@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {FilledButtonComponent} from "./button/filled/filled-button.component";
-import {IconComponent} from "./icon/icon.component";
-import {TextButtonComponent} from "./button/text/text-button.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, FilledButtonComponent, IconComponent, TextButtonComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
