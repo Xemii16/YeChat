@@ -1,1 +1,5 @@
-<p>text-button works!</p>
+<button [ngClass]="{'disabled': disabled}" (click)="onClick()">
+  <div class="state-layer" [ngClass]="changePadding()">
+    <ng-content></ng-content>
+  </div>
+</button>

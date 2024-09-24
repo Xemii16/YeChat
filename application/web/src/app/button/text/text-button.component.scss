@@ -1,0 +1,57 @@
+@use '../../../styles' as styles;
+@use "sass:color";
+
+button {
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  height: 40px;
+  background-color: transparent;
+  text-decoration: none;
+  box-sizing: border-box;
+  border: none;
+  font: styles.get-font("label", "large");
+  font-weight: 600;
+  color: styles.get-scheme-color("primary");
+  border-radius: 1000px;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.state-layer {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  padding: 10px 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+button:hover {
+  background-color: styles.get-state-color("primary", "8");
+}
+
+button:focus-visible, button:active {
+  background-color: styles.get-state-color("primary", "12");
+}
+
+button:focus-visible {
+  outline: none;
+}
+
+.disabled {
+  pointer-events: none;
+}
+
+.disabled {
+  color: color.change(styles.get-scheme-color("on-surface"), $alpha: 0.38);
+}
+
+.icon {
+  padding-left: 16px;
+  padding-right: 20px;
+  column-gap: 4px;
+}
