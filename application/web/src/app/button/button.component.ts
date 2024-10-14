@@ -20,9 +20,10 @@ export class ButtonComponent {
   @Output() onclick = new EventEmitter<void>();
   @Input() disabled = false;
 
-  protected onClick(): void {
+  protected onClick(event: MouseEvent): void {
     if (!this.disabled) {
       this.onclick.emit();
+      event.stopImmediatePropagation();
     }
   }
 }

@@ -1,0 +1,5 @@
+@if(variant) {
+  <hr class="divider-variant" [ngClass]="{'shorter': shorter}">
+} @else if (!variant) {
+  <hr class="divider" [ngClass]="{'shorter': shorter}">
+}

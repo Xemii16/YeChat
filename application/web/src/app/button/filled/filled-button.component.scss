@@ -28,6 +28,8 @@ button {
   padding: 10px 20px;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
+  border-radius: 1000px;
 }
 
 button:hover {

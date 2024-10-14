@@ -1,0 +1,17 @@
+@use "../../styles" as styles;
+
+.divider {
+  display: flex;
+  border-width: 1px;
+  border-color: styles.get-scheme-color("outline");
+}
+
+.divider-variant {
+  border-style: solid;
+  border-width: 1px;
+  border-color: styles.get-scheme-color("outline-variant");
+}
+
+.shorter {
+  margin: 0 5px;
+}
